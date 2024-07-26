@@ -1,0 +1,28 @@
+<html>
+	<head></head>
+	<body>
+		<form>
+		<label for="Block">Block Size</label>
+		<input type="number" name="Block"></br>
+		<label for="Set">Set Size</label>
+		<input type="number" name="Set"></br>
+		<label for="Memory">Memory Size</label>
+		<input type="number" name="Memory"></br>
+		<label for="Cache">Cache Size</label>
+		<input type="number" name="Cache"></br>
+		<label for="BlockS">Block Sequence (add "," after each item)</label>
+		<input type="string" name="BlockS"></br>
+		<input type="button" value="solve">
+		</form>
+		<div id="AnsSheet">
+			<p id="hit">Cache Hit: </p>
+			<p id="miss">Cache Miss: </p>
+			<p id="penalty">Miss Penalty: </p>
+			<p id="ave">Average Memory Access Time: </p>
+			<p id="total">Total Memory Access Time: </p>
+			<div id="snap"></div>
+			<input type="button" value="convert to txt file">
+			<input type="button" value="return to input page">
+		</div>
+	</body>
+</html>
