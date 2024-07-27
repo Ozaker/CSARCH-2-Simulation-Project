@@ -1,28 +1,91 @@
+<!DOCTYPE html>
 <html>
-	<head></head>
-	<body>
-		<form>
-		<label for="Block">Block Size</label>
-		<input type="number" name="Block"></br>
-		<label for="Set">Set Size</label>
-		<input type="number" name="Set"></br>
-		<label for="Memory">Memory Size</label>
-		<input type="number" name="Memory"></br>
-		<label for="Cache">Cache Size</label>
-		<input type="number" name="Cache"></br>
-		<label for="BlockS">Block Sequence (add "," after each item)</label>
-		<input type="string" name="BlockS"></br>
-		<input type="button" value="solve">
-		</form>
-		<div id="AnsSheet">
-			<p id="hit">Cache Hit: </p>
-			<p id="miss">Cache Miss: </p>
-			<p id="penalty">Miss Penalty: </p>
-			<p id="ave">Average Memory Access Time: </p>
-			<p id="total">Total Memory Access Time: </p>
-			<div id="snap"></div>
-			<input type="button" value="convert to txt file">
-			<input type="button" value="return to input page">
-		</div>
-	</body>
+<head>
+    <title>Cache Simulator</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let simulationResults = null;
+
+            $('#cacheForm').on('submit', function(event) {
+                event.preventDefault();
+
+                $.ajax({
+                    url: '/simulate',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        simulationResults = response;
+                        $('#results').html(`
+                            <h2>Cache Simulator Results</h2>
+                            <p>Cache Hits: ${response.cacheHits}</p>
+                            <p>Cache Misses: ${response.cacheMisses}</p>
+                            <p>Miss Penalty: ${response.missPenalty}</p>
+                            <p>Average Memory Access Time: ${response.avgMemoryAccessTime}</p>
+                            <p>Total Memory Access Time: ${response.totalMemoryAccessTime}</p>
+                            <h3>Cache Snapshot</h3>
+                            <table border="1">
+                                <tr>
+                                    <th>Set</th>
+                                    ${response.cacheSnapshot[0].map((_, index) => `<th>Block ${index + 1}</th>`).join('')}
+                                </tr>
+                                ${response.cacheSnapshot.map((set, index) => `
+                                    <tr>
+                                        <td>${index}</td>
+                                        ${set.map(block => `<td>${block !== null ? block : 'Empty'}</td>`).join('')}
+                                    </tr>
+                                `).join('')}
+                            </table>
+                            <button id="saveResults">Save Results</button>
+                        `);
+
+                        $('#saveResults').on('click', function() {
+                            $.ajax({
+                                url: '/save_results',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify(simulationResults),
+                                xhrFields: {
+                                    responseType: 'blob'
+                                },
+                                success: function(blob) {
+                                    var url = window.URL.createObjectURL(blob);
+                                    var a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = 'cache_simulation_results.txt';
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    window.URL.revokeObjectURL(url);
+                                }
+                            });
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Cache Simulator (Block-set-associative / LRU)</h1>
+    <form id="cacheForm" method="post" action="/simulate">
+        <label for="blockSize">Block Size:</label>
+        <input type="number" id="blockSize" name="blockSize" required><br>
+
+        <label for="setSize">Set Size:</label>
+        <input type="number" id="setSize" name="setSize" required><br>
+
+        <label for="mmSize">Main Memory Size (blocks/words):</label>
+        <input type="text" id="mmSize" name="mmSize" required><br>
+
+        <label for="cacheSize">Cache Memory Size (blocks/words):</label>
+        <input type="text" id="cacheSize" name="cacheSize" required><br>
+
+        <label for="programFlow">Program Flow (blocks/words):</label>
+        <textarea id="programFlow" name="programFlow" required></textarea><br>
+
+        <input type="submit" value="Simulate">
+    </form>
+
+    <div id="results"></div>
+</body>
 </html>
