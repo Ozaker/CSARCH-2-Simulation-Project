@@ -61,7 +61,7 @@ def cache_simulator(block_size, set_size, mm_size, cache_size, program_flow):
     hit_count = 0
     miss_count = 0
     time = 0
-    miss_penalty = 10  # Assuming a fixed miss penalty
+    miss_penalty = 1 + block_size * 10 + 1 # miss penalty is 1 read + word count * 10 (penalty) + 1 read time
     total_memory_access_time = 0
 
     for address in program_flow:
@@ -89,8 +89,11 @@ def cache_simulator(block_size, set_size, mm_size, cache_size, program_flow):
         
         time += 1
 
-    total_memory_access_time += len(program_flow)  # Add hit time (assuming 1 time unit per access)
-    avg_memory_access_time = total_memory_access_time / len(program_flow)
+    hit_rate = hit_count/len(program_flow)
+    miss_rate = 1 - hit_rate
+
+    total_memory_access_time = (hit_count * block_size * 1) + (miss_count * block_size * 11) + (miss_count * 1)
+    avg_memory_access_time = hit_rate * 1 + miss_penalty * miss_rate # change via the formula hr * at + mr * miss penalty
 
     return {
         'cacheHits': hit_count,
