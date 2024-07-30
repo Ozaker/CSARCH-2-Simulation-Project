@@ -5,13 +5,12 @@ const app = express()
 
 app.use(express.static(__dirname + "/public"))
 
-app.engine("hbs", exphbs.engine({extname:'hbs'}))
+app.engine("hbs", exphbs.engine({defaultLayout: 'main', extname:'hbs'}))
 app.set("view engine", "hbs")
 app.set('views', './views')
 
 app.get("/", (req, res) => {
-     console.log("here")
-     res.render("home")
+     res.render("home", {title: "Group5"})
 })
 
 app.listen(3000)
