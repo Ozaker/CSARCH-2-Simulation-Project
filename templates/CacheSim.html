@@ -4,10 +4,12 @@
     <title>Cache Simulator</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+	    <!-- Appends Result to site-->
         $(document).ready(function() {
             let simulationResults = null;
 
             $('#cacheForm').on('submit', function(event) {
+		    <!-- Occurs when simulate is submitted-->
                 event.preventDefault();
 
                 $.ajax({
@@ -67,6 +69,7 @@
 </head>
 <body>
     <h1>Cache Simulator (Block-set-associative / LRU)</h1>
+	<!-- Form for inputs-->
     <form id="cacheForm" method="post" action="/simulate">
         <label for="blockSize">Block Size:</label>
         <input type="number" id="blockSize" name="blockSize" required><br>
@@ -100,6 +103,6 @@
         <input type="submit" value="Simulate">
     </form>
 
-    <div id="results"></div>
+    <div id="results"><!-- Div where results are to be added--></div>
 </body>
 </html>
