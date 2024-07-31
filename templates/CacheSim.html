@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cache Simulator</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let simulationResults = null;
+
+            $('#cacheForm').on('submit', function(event) {
+                event.preventDefault();
+
+                $.ajax({
+                    url: '/simulate',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        simulationResults = response;
+                        $('#results').html(`
+                            <h2>Cache Simulator Results</h2>
+                            <p>Cache Hits: ${response.cacheHits}</p>
+                            <p>Cache Misses: ${response.cacheMisses}</p>
+                            <p>Miss Penalty: ${response.missPenalty}</p>
+                            <p>Average Memory Access Time: ${response.avgMemoryAccessTime}</p>
+                            <p>Total Memory Access Time: ${response.totalMemoryAccessTime}</p>
+                            <h3>Cache Snapshot</h3>
+                            <table border="1">
+                                <tr>
+                                    <th>Set</th>
+                                    ${response.cacheSnapshot[0].map((_, index) => `<th>Block ${index + 1}</th>`).join('')}
+                                </tr>
+                                ${response.cacheSnapshot.map((set, index) => `
+                                    <tr>
+                                        <td>${index}</td>
+                                        ${set.map(block => `<td>${block !== null ? block : 'Empty'}</td>`).join('')}
+                                    </tr>
+                                `).join('')}
+                            </table>
+                            <button id="saveResults">Save Results</button>
+                        `);
+
+                        $('#saveResults').on('click', function() {
+                            $.ajax({
+                                url: '/save_results',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify(simulationResults),
+                                xhrFields: {
+                                    responseType: 'blob'
+                                },
+                                success: function(blob) {
+                                    var url = window.URL.createObjectURL(blob);
+                                    var a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = 'cache_simulation_results.txt';
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    window.URL.revokeObjectURL(url);
+                                }
+                            });
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Cache Simulator (Block-set-associative / LRU)</h1>
+    <form id="cacheForm" method="post" action="/simulate">
+        <label for="blockSize">Block Size:</label>
+        <input type="number" id="blockSize" name="blockSize" required><br>
+
+        <label for="setSize">Set Size:</label>
+        <input type="number" id="setSize" name="setSize" required><br>
+
+        <label for="mmSize">Main Memory Size (blocks/words):</label>
+        <input type="number" id="mmSize" name="mmSize" required><br>
+		<select name="mmDataUnit">
+            <option>blocks</option>
+            <option>words</option>
+        </select>
+		<br>
+
+        <label for="cacheSize">Cache Memory Size (blocks/words):</label>
+        <input type="number" id="cacheSize" name="cacheSize" required><br>
+		<select name="cmDataUnit">
+            <option>blocks</option>
+            <option>words</option>
+        </select>
+		<br>
+
+        <label for="programFlow">Program Flow (blocks/words):</label>
+        <textarea id="programFlow" name="programFlow" required></textarea>
+        <select name="pFDataUnit">
+            <option>blocks</option>
+            <option>words</option>
+        </select>
+        <br>
+        <input type="submit" value="Simulate">
+    </form>
+
+    <div id="results"></div>
+</body>
+</html>
