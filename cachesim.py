@@ -9,6 +9,7 @@ def index():
 
 @app.route('/simulate', methods=['POST'])
 def simulate():
+    #Gets input from site
     block_size = int(request.form['blockSize'])
     set_size = int(request.form['setSize'])
     mm_size = int(request.form['mmSize'])
@@ -18,13 +19,11 @@ def simulate():
 
     # Convert mm_size and cache_size to blocks if necessary
     mm_DataUnit = request.form['mmDataUnit']
-    #mm_size = int(mm_size.split()[0])
 
     if mm_DataUnit == 'words':
         mm_size = mm_size // block_size
 
     cache_DataUnit = request.form['cmDataUnit']
-    #cache_size = int(cache_size.split()[0])
 
     if cache_DataUnit == 'words':
         cache_size = cache_size // block_size
@@ -41,7 +40,8 @@ def simulate():
     return jsonify(results)
 
 @app.route('/save_results', methods=['POST'])
-def save_results():
+def save_results(): 
+    #Puts result to txt
     results = request.json
     output = io.StringIO()
     output.write("Cache Simulator Results\n")
@@ -82,13 +82,7 @@ def cache_simulator(block_size, set_size, mm_size, cache_size, program_flow):
         block = address // block_size
         set_index = block % num_sets
         hits = 0
-        #if block in cache[set_index]:
-            # Cache hit
-        #    hit_count += 1
-        #    lru[set_index][cache[set_index].index(block)] = time
-        #else:
-            # Cache miss
-            #miss_count += 1
+        
         for item in cache[set_index]:
             if item == address: #Cache Hit
                 hits = 1 
@@ -120,7 +114,7 @@ def cache_simulator(block_size, set_size, mm_size, cache_size, program_flow):
     total_memory_access_time = (hit_count * block_size * 1) + (miss_count * block_size * 11) + (miss_count * 1)
     avg_memory_access_time = (hit_rate * 1) + (miss_penalty * miss_rate) # change to the formula hr * at + mr * miss penalty
 
-    return {
+    return { #returns result to site
         'cacheHits': hit_count,
         'cacheMisses': miss_count,
         'missPenalty': miss_penalty,
