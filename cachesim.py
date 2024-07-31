@@ -16,14 +16,26 @@ def simulate():
     program_flow = request.form['programFlow']
 
     # Convert mm_size and cache_size to blocks if necessary
+    mm_DataUnit = mm_size.split()[1]
     mm_size = int(mm_size.split()[0])
+
+    if mm_DataUnit == 'words':
+        mm_size = mm_size // block_size
+
+    cache_DataUnit = cache_size.split()[1]
     cache_size = int(cache_size.split()[0])
+
+    if cache_DataUnit == 'words':
+        cache_size = cache_size // block_size
     
     # Convert program_flow to a list of addresses
     program_flow = list(map(int, program_flow.split()))
 
-    # Run the cache simulation
-    results = cache_simulator(block_size, set_size, mm_size, cache_size, program_flow)
+    try:
+        # Run the cache simulation
+        results = cache_simulator(block_size, set_size, mm_size, cache_size, program_flow)
+    except ArithmeticError:
+        results = None
 
     return jsonify(results)
 
@@ -93,7 +105,7 @@ def cache_simulator(block_size, set_size, mm_size, cache_size, program_flow):
     miss_rate = 1 - hit_rate
 
     total_memory_access_time = (hit_count * block_size * 1) + (miss_count * block_size * 11) + (miss_count * 1)
-    avg_memory_access_time = hit_rate * 1 + miss_penalty * miss_rate # change via the formula hr * at + mr * miss penalty
+    avg_memory_access_time = (hit_rate * 1) + (miss_penalty * miss_rate) # change to the formula hr * at + mr * miss penalty
 
     return {
         'cacheHits': hit_count,

@@ -81,8 +81,12 @@
         <input type="text" id="cacheSize" name="cacheSize" required><br>
 
         <label for="programFlow">Program Flow (blocks/words):</label>
-        <textarea id="programFlow" name="programFlow" required></textarea><br>
-
+        <textarea id="programFlow" name="programFlow" required></textarea>
+        <select name="pFDataUnit">
+            <option>blocks</option>
+            <option>words</option>
+        </select>
+        <br>
         <input type="submit" value="Simulate">
     </form>
 
