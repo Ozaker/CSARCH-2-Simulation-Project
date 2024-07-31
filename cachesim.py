@@ -11,19 +11,20 @@ def index():
 def simulate():
     block_size = int(request.form['blockSize'])
     set_size = int(request.form['setSize'])
-    mm_size = request.form['mmSize']
-    cache_size = request.form['cacheSize']
+    mm_size = int(request.form['mmSize'])
+    cache_size = int(request.form['cacheSize'])
     program_flow = request.form['programFlow']
+    pf_DataUnit = request.form['pFDataUnit']
 
     # Convert mm_size and cache_size to blocks if necessary
-    mm_DataUnit = mm_size.split()[1]
-    mm_size = int(mm_size.split()[0])
+    mm_DataUnit = request.form['mmDataUnit']
+    #mm_size = int(mm_size.split()[0])
 
     if mm_DataUnit == 'words':
         mm_size = mm_size // block_size
 
-    cache_DataUnit = cache_size.split()[1]
-    cache_size = int(cache_size.split()[0])
+    cache_DataUnit = request.form['cmDataUnit']
+    #cache_size = int(cache_size.split()[0])
 
     if cache_DataUnit == 'words':
         cache_size = cache_size // block_size
@@ -73,32 +74,44 @@ def cache_simulator(block_size, set_size, mm_size, cache_size, program_flow):
     hit_count = 0
     miss_count = 0
     time = 0
+    ind = 0
     miss_penalty = 1 + block_size * 10 + 1 # miss penalty is 1 read + word count * 10 (penalty) + 1 read time
     total_memory_access_time = 0
 
     for address in program_flow:
         block = address // block_size
         set_index = block % num_sets
-        
-        if block in cache[set_index]:
+        hits = 0
+        #if block in cache[set_index]:
             # Cache hit
-            hit_count += 1
-            lru[set_index][cache[set_index].index(block)] = time
-        else:
+        #    hit_count += 1
+        #    lru[set_index][cache[set_index].index(block)] = time
+        #else:
             # Cache miss
+            #miss_count += 1
+        for item in cache[set_index]:
+            if item == address: #Cache Hit
+                hits = 1 
+        if hits == 1:
+            ind = cache[set_index].index(item)
+            hit_count += 1
+            lru[set_index][ind] = time
+        else:
             miss_count += 1
+            # Cache miss
             if None in cache[set_index]:
-                # There is an empty slot in the set
+                # There is an empty slot in the set 
                 empty_index = cache[set_index].index(None)
-                cache[set_index][empty_index] = block
+                cache[set_index][empty_index] = address
                 lru[set_index][empty_index] = time
-            else:
+                total_memory_access_time += miss_penalty
+            else: 
                 # Evict the least recently used block
                 lru_index = lru[set_index].index(min(lru[set_index]))
-                cache[set_index][lru_index] = block
+                cache[set_index][lru_index] = address
                 lru[set_index][lru_index] = time
-            total_memory_access_time += miss_penalty
-        
+                total_memory_access_time += miss_penalty
+  
         time += 1
 
     hit_rate = hit_count/len(program_flow)
