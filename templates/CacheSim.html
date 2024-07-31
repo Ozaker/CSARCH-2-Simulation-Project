@@ -75,10 +75,20 @@
         <input type="number" id="setSize" name="setSize" required><br>
 
         <label for="mmSize">Main Memory Size (blocks/words):</label>
-        <input type="text" id="mmSize" name="mmSize" required><br>
+        <input type="number" id="mmSize" name="mmSize" required><br>
+		<select name="mmDataUnit">
+            <option>blocks</option>
+            <option>words</option>
+        </select>
+		<br>
 
         <label for="cacheSize">Cache Memory Size (blocks/words):</label>
-        <input type="text" id="cacheSize" name="cacheSize" required><br>
+        <input type="number" id="cacheSize" name="cacheSize" required><br>
+		<select name="cmDataUnit">
+            <option>blocks</option>
+            <option>words</option>
+        </select>
+		<br>
 
         <label for="programFlow">Program Flow (blocks/words):</label>
         <textarea id="programFlow" name="programFlow" required></textarea>
